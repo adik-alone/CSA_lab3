@@ -8,7 +8,7 @@ asm | risc | harv | hw | instr | binary -> struct | trap -> stream | port | pstr
 
 <h1>Язык программирования</h1>
 
-```
+```asm
 <program> ::= { line }
 
 <line> ::= <op_wo_arg> 
@@ -23,15 +23,15 @@ asm | risc | harv | hw | instr | binary -> struct | trap -> stream | port | pstr
         | "\n"
 
 <op_without_arg> ::= "hlt"
+                    | "write"
+                    | "read"
 
 <op_one_arg> ::= "inc"
                 | "dec"
-                | "write"
-                | "read"
+                | "setport"
                    
 <op_mem> ::= "load"
             | "store"
-            | "setport"
             
             
 <op_data> ::= "add"
@@ -43,7 +43,7 @@ asm | risc | harv | hw | instr | binary -> struct | trap -> stream | port | pstr
        
            
 <op_jump> ::= "jmp" 
-            | "jz"
+            | "je"
  
 
 <label> ::= <label_name> ":" {" "}
@@ -98,8 +98,8 @@ mul - 10 ---- 01010\
 div - 11 ---- 01011\
 mod - 12 ---- 01100\
 jmp - 13 ---- 01101\
-jz - 14 ----- 01110\
-cmp - 15 ---- 01111
+je - 14 ----- 01110\
+cmp - 16 ---- 01111\
 
 
 <h1>Программы</h1>
@@ -112,10 +112,14 @@ section .data
 section .text
     _start:
         loop:
-            input 0
-            cmp '\n'
+            load 0 ra
+            setport ra
+            read
+            cmp '\n' rd
             je exit
-            output 1
+            load 1 ra
+            setport ra
+            write rd
             jmp loop
         exit:
             hlt
