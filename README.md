@@ -28,7 +28,6 @@ asm | risc | harv | hw | instr | binary -> struct | trap -> stream | port | pstr
 
 <op_one_arg> ::= "inc"
                 | "dec"
-                | "setport"
                    
 <op_mem> ::= "load"
             | "store"
@@ -60,7 +59,7 @@ asm | risc | harv | hw | instr | binary -> struct | trap -> stream | port | pstr
 <reg_name> ::= "ra"
             | "rc"
             | "rd"
-            | "r4"
+            | "rp"
             | "r5"
             | "r6"
             | "r7"
@@ -73,21 +72,14 @@ load <lable_name> -> <reg_name>
 
 ```
 
-
-- ``jmp`` - Безусловный переход
-- ``je`` - переход, если равеноство
-- 3
-- 4
-- 5
-- 6
-
-
 15 команд\
 Op_code\
 hlt - 0 ----- 00000\
 load - 1 ---- 00001\
 store - 2 --- 00010\
-setport - 3-- 00011\
+mov - 3 ----- 00011\
+[//]: # (setport - 3-- 00011\)
+
 inc - 4 ----- 00100\
 dec - 5 ----- 00101\
 read - 6 ---- 00110\
@@ -112,13 +104,11 @@ section .data
 section .text
     _start:
         loop:
-            load 0 ra
-            setport ra
+            load 0 rp
             read
             cmp '\n' rd
             je exit
-            load 1 ra
-            setport ra
+            load 1 rp
             write rd
             jmp loop
         exit:
@@ -154,17 +144,51 @@ section .text
 _start:
     load message_size rc
     load message rd
-    load 1 ra
-    setport ra
+    load 1 rp
     
     loop:
         write
         dec rc
         load 0 ra
         cmp ra rc
-        jz exit
+        je exit
         inc rd
         jmp loop
     exit:
         hlt
 ```
+
+<h1>Организация памяти</h1>
+
+```asm
+Registers
++------------------------------+
+| ra - accumulator             |
+| rc - cycle                   |
+| rd - data                    |
+| rp - port                    |
+| r4                           |
+| ...                          |
+| r9                           |
++------------------------------+
+
+Instruction memory
++------------------------------+
+| 00   : program start         |
+|     ...                      |
+| n    : hlt                   |
++------------------------------+
+
+Data memory
++------------------------------+
+| 00   : start_data            |
+|     ...                      |
+| n    : end_data              |
++------------------------------+
+```
+1. Литералы - 
+2. Константы - 
+3. Переменные - 
+4. Инструкции - 
+5. Процедуры - 
+6. Прерывания во время компиляции
